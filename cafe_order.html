@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>음료 주문 | 경북 일어교과교육연구회</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#534AB7;--purple-dark:#3C3489;--purple-light:#EEEDFE;
+  --text:#1a1a2e;--text-sub:#6b6b8a;--border:#e2e2ef;
+  --bg:#f7f7fc;--white:#fff;--red:#c0392b;
+  --hot:#c0392b;--hot-bg:#fdf0ee;--hot-border:#f5c6bc;
+  --cold:#1a6fa8;--cold-bg:#eaf4fb;--cold-border:#b3d9f2;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:var(--purple);color:#fff;padding:20px 20px 16px;text-align:center;}
+.header h1{font-size:18px;font-weight:700;letter-spacing:-0.3px;}
+.header p{font-size:12px;opacity:0.8;margin-top:4px;}
+.wrap{max-width:440px;margin:0 auto;padding:20px 16px 80px;}
+.card{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:20px;margin-bottom:16px;}
+.section-label{font-size:12px;font-weight:700;color:var(--text-sub);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;}
+input[type=text],input[type=password]{
+  width:100%;padding:11px 14px;font-size:15px;font-family:inherit;
+  border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);
+  outline:none;transition:border-color 0.2s;
+}
+input[type=text]:focus,input[type=password]:focus{border-color:var(--purple);}
+.menu-list{display:flex;flex-direction:column;gap:10px;}
+.menu-group{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color 0.15s;}
+.menu-group:hover{border-color:#9d97e0;}
+.menu-group-name{font-size:15px;font-weight:500;padding:13px 16px;background:var(--bg);color:var(--text);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.temp-options{display:flex;}
+.temp-btn{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:12px 8px;cursor:pointer;transition:all 0.15s;
+  background:var(--white);border:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--text-sub);
+}
+.temp-btn:first-child{border-right:1px solid var(--border);}
+.temp-btn input[type=checkbox]{width:18px;height:18px;cursor:pointer;flex-shrink:0;margin:0;}
+.temp-btn.hot-btn input{accent-color:var(--hot);}
+.temp-btn.cold-btn input{accent-color:var(--cold);}
+.temp-btn.hot-btn.active{background:var(--hot-bg);color:var(--hot);}
+.temp-btn.cold-btn.active{background:var(--cold-bg);color:var(--cold);}
+.temp-tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:2px;}
+.hot-tag{background:var(--hot-bg);color:var(--hot);}
+.cold-tag{background:var(--cold-bg);color:var(--cold);}
+.single-item{
+  display:flex;align-items:center;gap:14px;padding:13px 16px;cursor:pointer;
+  background:var(--white);border:1.5px solid var(--border);border-radius:12px;transition:all 0.15s;
+}
+.single-item:hover{border-color:#9d97e0;}
+.single-item.active-hot{border-color:var(--hot);background:var(--hot-bg);}
+.single-item.active-cold{border-color:var(--cold);background:var(--cold-bg);}
+.single-item input[type=checkbox]{width:20px;height:20px;cursor:pointer;flex-shrink:0;margin:0;}
+.single-item.active-hot input{accent-color:var(--hot);}
+.single-item.active-cold input{accent-color:var(--cold);}
+.single-name{font-size:15px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px;}
+.btn{
+  width:100%;padding:14px;font-size:16px;font-weight:700;font-family:inherit;
+  background:var(--purple);color:#fff;border:none;border-radius:12px;cursor:pointer;transition:background 0.15s;
+}
+.btn:hover{background:var(--purple-dark);}
+.btn:disabled{background:#c5c5da;cursor:not-allowed;}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text);font-weight:500;}
+.btn-outline:hover{background:var(--bg);}
+.btn-danger{background:none;border:1.5px solid #f5c6bc;color:var(--red);font-weight:500;}
+.btn-danger:hover{background:#fdf0ee;}
+.done-box{text-align:center;padding:32px 20px;}
+.done-icon{font-size:56px;margin-bottom:12px;}
+.done-title{font-size:20px;font-weight:700;margin-bottom:6px;}
+.done-desc{font-size:14px;color:var(--text-sub);}
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#222;color:#fff;padding:11px 22px;border-radius:24px;
+  font-size:14px;font-weight:500;opacity:0;transition:opacity 0.3s;
+  pointer-events:none;white-space:nowrap;z-index:999;
+}
+.toast.show{opacity:1;}
+.admin-bar{text-align:right;margin-bottom:12px;}
+.admin-bar button{background:none;border:none;font-size:12px;color:var(--text-sub);cursor:pointer;text-decoration:underline;font-family:inherit;padding:0;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--bg);border-radius:10px;padding:14px;}
+.stat-label{font-size:11px;color:var(--text-sub);font-weight:700;margin-bottom:4px;letter-spacing:0.04em;}
+.stat-value{font-size:24px;font-weight:700;color:var(--purple);}
+.count-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.count-row:last-child{border-bottom:none;}
+.count-name{font-size:13px;color:var(--text);display:flex;align-items:center;gap:6px;}
+.count-badge{font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px;}
+.badge-hot{background:var(--hot-bg);color:var(--hot);}
+.badge-cold{background:var(--cold-bg);color:var(--cold);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px 8px;background:var(--bg);color:var(--text-sub);font-weight:700;font-size:11px;letter-spacing:0.04em;border-bottom:1px solid var(--border);}
+td{padding:9px 8px;border-bottom:1px solid var(--border);color:var(--text);}
+.btn-csv{margin-top:12px;font-size:13px;padding:10px;}
+.back-btn{display:block;margin-top:12px;background:none;border:none;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:inherit;text-decoration:underline;width:100%;text-align:center;}
+.pw-err{color:var(--red);font-size:13px;margin-top:6px;display:none;}
+.reset-box{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.reset-label{font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.06em;margin-bottom:8px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modal{background:#fff;border-radius:18px;padding:28px 24px;max-width:320px;width:90%;text-align:center;}
+.modal-icon{font-size:40px;margin-bottom:12px;}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.modal-desc{font-size:13px;color:var(--text-sub);line-height:1.6;margin-bottom:20px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;}
+.modal-cancel{background:var(--bg);color:var(--text-sub);}
+.modal-confirm{background:var(--red);color:#fff;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>☕ 음료 주문</h1>
+  <p>경북 일어교과교육연구회 연수</p>
+</div>
+<div class="wrap">
+  <div id="main-view">
+    <div class="admin-bar">
+      <button onclick="showAdminLogin()">🔒 관리자</button>
+    </div>
+    <div class="card">
+      <p class="section-label">이름 입력</p>
+      <input type="text" id="name-input" placeholder="홍길동" maxlength="10">
+    </div>
+    <div class="card">
+      <p class="section-label">메뉴 선택 (1인 1메뉴)</p>
+      <div class="menu-list" id="menu-list"></div>
+    </div>
+    <button class="btn" id="submit-btn" onclick="submitOrder()" disabled>주문하기</button>
+  </div>
+
+  <div id="done-view" style="display:none;">
+    <div class="card done-box">
+      <div class="done-icon">✅</div>
+      <div class="done-title" id="done-title"></div>
+      <div class="done-desc" id="done-desc"></div>
+    </div>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="newOrder()">다른 분 주문하기</button>
+  </div>
+
+  <div id="admin-login-view" style="display:none;">
+    <div class="card">
+      <p class="section-label" style="margin-bottom:12px;">관리자 비밀번호</p>
+      <input type="password" id="pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')checkPw()">
+      <p class="pw-err" id="pw-err">비밀번호가 틀렸습니다.</p>
+    </div>
+    <button class="btn" onclick="checkPw()" style="margin-bottom:8px;">확인</button>
+    <button class="back-btn" onclick="showMain()">← 돌아가기</button>
+  </div>
+
+  <div id="admin-view" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <p class="section-label" style="margin:0;">주문 현황</p>
+        <button onclick="refreshAdmin()" style="background:none;border:none;cursor:pointer;font-size:18px;">🔄</button>
+      </div>
+      <div class="stat-grid" id="summary-grid"></div>
+      <p class="section-label" style="margin-bottom:8px;">메뉴별 주문 수</p>
+      <div id="menu-counts"></div>
+    </div>
+    <div class="card">
+      <p class="section-label" style="margin-bottom:10px;">개인별 주문 내역</p>
+      <table>
+        <thead><tr><th>#</th><th>이름</th><th>메뉴</th><th>온도</th><th>시간</th></tr></thead>
+        <tbody id="order-tbody"></tbody>
+      </table>
+      <button class="btn btn-outline btn-csv" onclick="downloadCSV()">📥 CSV 다운로드</button>
+    </div>
+
+    <!-- 리셋 영역 -->
+    <div class="card">
+      <div class="reset-box">
+        <p class="reset-label">⚠️ 위험 구역</p>
+        <p style="font-size:13px;color:var(--text-sub);margin-bottom:12px;line-height:1.6;">
+          리셋하면 모든 주문 데이터가 삭제됩니다.<br>다음 연수 시작 전에 사용해 주세요.
+        </p>
+        <button class="btn btn-danger" onclick="confirmReset()">🔄 전체 주문 리셋</button>
+      </div>
+    </div>
+
+    <button class="back-btn" onclick="showMain()">로그아웃 후 돌아가기</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 리셋 확인 모달 -->
+<div class="modal-overlay" id="reset-modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title">전체 주문을 리셋할까요?</div>
+    <div class="modal-desc">모든 주문 데이터가 삭제됩니다.<br>이 작업은 되돌릴 수 없습니다.</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">취소</button>
+      <button class="modal-confirm" onclick="doReset()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MENUS=[
+  {id:'americano',name:'아메리카노',icon:'☕',temps:['Hot','Cold']},
+  {id:'cafelatte',name:'카페 라떼',icon:'🥛',temps:['Hot','Cold']},
+  {id:'vanillalatte',name:'바닐라 라떼',icon:'🍦',temps:['Hot','Cold']},
+  {id:'gingertea',name:'배생강차',icon:'🍵',temps:['Hot']},
+  {id:'grapeade',name:'청포도플라워에이드',icon:'🍇',temps:['Cold']},
+];
+const ADMIN_PW='1234';
+let orders=JSON.parse(localStorage.getItem('cafe_orders')||'[]');
+let selected=null;
+
+function save(){localStorage.setItem('cafe_orders',JSON.stringify(orders));}
+function fmtTime(iso){const d=new Date(iso);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+
+function renderMenus(){
+  const list=document.getElementById('menu-list');
+  list.innerHTML='';
+  MENUS.forEach(m=>{
+    if(m.temps.length===2){
+      const selHot=selected&&selected.menuId===m.id&&selected.temp==='Hot';
+      const selCold=selected&&selected.menuId===m.id&&selected.temp==='Cold';
+      const div=document.createElement('div');
+      div.className='menu-group';
+      if(selHot) div.style.borderColor='var(--hot)';
+      if(selCold) div.style.borderColor='var(--cold)';
+      div.innerHTML=`<div class="menu-group-name"><span>${m.icon}</span>${m.name}</div>
+        <div class="temp-options">
+          <button class="temp-btn hot-btn${selHot?' active':''}" onclick="selectMenu('${m.id}','Hot')">
+            <input type="checkbox" ${selHot?'checked':''} onclick="event.stopPropagation()"> <span>🔴 Hot</span>
+          </button>
+          <button class="temp-btn cold-btn${selCold?' active':''}" onclick="selectMenu('${m.id}','Cold')">
+            <input type="checkbox" ${selCold?'checked':''} onclick="event.stopPropagation()"> <span>🔵 Cold</span>
+          </button>
+        </div>`;
+      list.appendChild(div);
+    } else {
+      const t=m.temps[0];
+      const isSel=selected&&selected.menuId===m.id;
+      const cls=isSel?(t==='Hot'?'active-hot':'active-cold'):'';
+      const tag=t==='Hot'?`<span class="temp-tag hot-tag">🔴 Hot</span>`:`<span class="temp-tag cold-tag">🔵 Cold</span>`;
+      const div=document.createElement('div');
+      div.className=`single-item ${cls}`;
+      div.onclick=()=>selectMenu(m.id,t);
+      div.innerHTML=`<input type="checkbox" ${isSel?'checked':''} onchange="selectMenu('${m.id}','${t}')" onclick="event.stopPropagation()">
+        <div class="single-name">${m.icon} ${m.name} ${tag}</div>`;
+      list.appendChild(div);
+    }
+  });
+}
+
+function selectMenu(menuId,temp){
+  selected=(selected&&selected.menuId===menuId&&selected.temp===temp)?null:{menuId,temp};
+  renderMenus();checkSubmit();
+}
+function checkSubmit(){const n=document.getElementById('name-input').value.trim();document.getElementById('submit-btn').disabled=!(n&&selected);}
+document.getElementById('name-input').addEventListener('input',checkSubmit);
+
+function submitOrder(){
+  const name=document.getElementById('name-input').value.trim();
+  if(!name){showToast('이름을 입력해 주세요');return;}
+  if(!selected){showToast('메뉴를 선택해 주세요');return;}
+  if(orders.find(o=>o.name===name)){showToast(`"${name}"님은 이미 주문하셨습니다`);return;}
+  const m=MENUS.find(m=>m.id===selected.menuId);
+  orders.push({name,menuId:m.id,menuName:m.name,temp:selected.temp,time:new Date().toISOString()});
+  save();
+  const tempLabel=selected.temp==='Hot'?'🔴 Hot':'🔵 Cold';
+  document.getElementById('done-title').textContent=`${name}님, 주문 완료!`;
+  document.getElementById('done-desc').textContent=`${m.name} · ${tempLabel}`;
+  hide('main-view');show('done-view');
+}
+
+function newOrder(){selected=null;document.getElementById('name-input').value='';renderMenus();checkSubmit();hide('done-view');show('main-view');}
+function showMain(){['admin-login-view','admin-view','done-view'].forEach(hide);show('main-view');}
+function showAdminLogin(){hide('main-view');document.getElementById('pw-err').style.display='none';document.getElementById('pw-input').value='';show('admin-login-view');}
+function checkPw(){
+  if(document.getElementById('pw-input').value===ADMIN_PW){hide('admin-login-view');renderAdmin();show('admin-view');}
+  else{document.getElementById('pw-err').style.display='';}
+}
+function renderAdmin(){
+  orders=JSON.parse(localStorage.getItem('cafe_orders')||'[]');
+  document.getElementById('summary-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-label">전체 인원</div><div class="stat-value">${orders.length}명</div></div>
+    <div class="stat-card"><div class="stat-label">총 주문 수</div><div class="stat-value">${orders.length}건</div></div>`;
+  const mc=document.getElementById('menu-counts');mc.innerHTML='';
+  MENUS.forEach(m=>{
+    m.temps.forEach(t=>{
+      const cnt=orders.filter(o=>o.menuId===m.id&&o.temp===t).length;
+      const badgeCls=t==='Hot'?'badge-hot':'badge-cold';
+      const tempLabel=t==='Hot'?'🔴 Hot':'🔵 Cold';
+      mc.innerHTML+=`<div class="count-row">
+        <span class="count-name">${m.icon} ${m.name} <span class="temp-tag ${t==='Hot'?'hot-tag':'cold-tag'}" style="font-size:11px;">${tempLabel}</span></span>
+        <span class="count-badge ${badgeCls}">${cnt}명</span>
+      </div>`;
+    });
+  });
+  const tb=document.getElementById('order-tbody');tb.innerHTML='';
+  if(!orders.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#aaa;padding:16px;">아직 주문이 없습니다</td></tr>';return;}
+  orders.forEach((o,i)=>{
+    const tempLabel=o.temp==='Hot'?'🔴 Hot':'🔵 Cold';
+    tb.innerHTML+=`<tr><td>${i+1}</td><td>${o.name}</td><td>${o.menuName}</td><td>${tempLabel}</td><td>${fmtTime(o.time)}</td></tr>`;
+  });
+}
+function refreshAdmin(){renderAdmin();showToast('새로고침 완료');}
+function downloadCSV(){
+  orders=JSON.parse(localStorage.getItem('cafe_orders')||'[]');
+  let csv='\uFEFF번호,이름,메뉴,온도,시간\n';
+  orders.forEach((o,i)=>{csv+=`${i+1},${o.name},${o.menuName},${o.temp},${fmtTime(o.time)}\n`;});
+  csv+='\n메뉴별 집계\n메뉴,온도,주문수\n';
+  MENUS.forEach(m=>{m.temps.forEach(t=>{csv+=`${m.name},${t},${orders.filter(o=>o.menuId===m.id&&o.temp===t).length}명\n`;});});
+  csv+=`\n전체 인원,${orders.length}명\n`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`음료주문현황_${new Date().toLocaleDateString('ko')}.csv`;
+  a.click();
+}
+
+function confirmReset(){document.getElementById('reset-modal').style.display='flex';}
+function closeModal(){document.getElementById('reset-modal').style.display='none';}
+function doReset(){
+  localStorage.removeItem('cafe_orders');
+  orders=[];
+  closeModal();
+  renderAdmin();
+  showToast('✅ 전체 주문이 리셋되었습니다');
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function show(id){document.getElementById(id).style.display='';}
+function hide(id){document.getElementById(id).style.display='none';}
+renderMenus();
+</script>
+</body>
+</html>
